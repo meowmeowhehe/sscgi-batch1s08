@@ -59,3 +59,26 @@ const constFunction = function () {
   console.log("Initialized with const!");
 };
 constFunction();
+
+// Parameters and Arguments
+function printName(name) {
+  console.log("My Name is", name, arguments[1]);
+}
+printName("Juan"); // argument
+
+// "name" is parameter
+// Parameter acts as named variable/containers that exists only inside a function
+// is used to store information that is provided to function when called/invoked
+
+// Argument is a value passed when invoking a function, this argument is then stored as the parameters within the function
+printName("Happy");
+printName("Yui", 12);
+
+function argumentFunction() {
+  console.log("Function was passed as an argument before message was printed.");
+}
+function invokeFunction(argumentFunction) {
+  // argumentFunction();
+  console.log(argumentFunction);
+}
+invokeFunction(argumentFunction);
