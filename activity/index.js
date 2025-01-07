@@ -45,6 +45,8 @@
     - shadow
 */
 
+const colors = ["#660000", "#000066", "#330000", "#000033"];
+
 class Trainer {
   constructor(name, pokemonList) {
     this.name = name;
@@ -65,15 +67,6 @@ class Trainer {
     });
     console.log(`~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~`);
   }
-  usePokemon(name) {
-    this.selectedPokemon;
-    this.pokemonList.forEach((pokemon) => {
-      this.selectedPokemon = pokemon.name == name ? name : "";
-    });
-
-    if (this.selectedPokemon === "") console.log("No pokemon found!");
-    else console.log(`${name} selected!`);
-  }
 }
 class Pokemon {
   constructor(name, type, level, maxHp, hp) {
@@ -92,47 +85,59 @@ class Pokemon {
     console.log(`${opponent.name} remaining hp is ${opponent.hp}`);
   }
   calculateDamage(damage) {
+    // Ratio of health
     const healthRatio = this.hp / this.maxHp;
-    const critChance = 1 - healthRatio;
-    const isCriticalHit = Math.random() < critChance;
-    const damageMultiplier = isCriticalHit ? 2 : 1;
 
+    // Crit chance depending on ratio
+    const critChance = 1 - healthRatio;
+
+    // Randomizer with crit
+    const isCriticalHit = Math.random() < critChance;
+
+    // Damage
+    const damageMultiplier = isCriticalHit ? 2 : 1;
     const damageDealt =
       Math.floor(Math.random() * damage * damageMultiplier) + 1;
 
-    return damageDealt;
+    return [damageDealt, isCriticalHit];
   }
   powerUp() {
     this.level += 1;
     this.maxHp = this.level * 10;
-    this.hp = this.maxHp;
+    this.hp += 10;
 
     console.log(
-      `${this.name} powered up!\nNew Level: ${this.level}\nNew Max HP: ${this.maxHp}`
+      `${this.name} powered up!\nNew Level: ${this.level}\nNew Max HP: ${this.maxHp}\nNew HP: ${this.hp}`
     );
   }
   heal() {
+    // totalHealing = (random)
     const totalHealing = Math.floor(Math.random() * (this.level + 2)) + 1;
-
     this.hp =
       this.hp + totalHealing > this.maxHp ? this.maxHp : this.hp + totalHealing;
-    console.log(`${this.name} healed ${totalHealing} hp!`);
-    console.log(`${this.name} new hp is ${this.hp} hp!`);
+
+    console.log(`${this.name} healed ${totalHealing} HP!`);
+    if (this.hp + totalHealing > this.maxHp) console.log(`Max HP reached!`);
+    console.log(`${this.name} new hp is ${this.hp} HP!`);
   }
 }
 
 // Types of Pokemons
 class NormalPokemon extends Pokemon {
   constructor(name) {
-    super(name, "Normal", 1, 10, 10);
+    const level = Math.floor(Math.random() * 2) + 1; // Get random level
+    super(name, "Normal", level, level * 10, level * 10);
   }
 
   skill1(opponent) {
     super.attack();
     const totalDamage = this.calculateDamage(this.level * 1);
 
-    console.log(`${this.name} uses HEADBUTT and deals ${totalDamage}`);
-    super.receiveDamage(opponent, totalDamage);
+    console.log(
+      `${this.name} uses HEADBUTT and deals ${totalDamage[0]}`,
+      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    );
+    super.receiveDamage(opponent, totalDamage[0]);
   }
   skill2(opponent) {
     super.attack();
@@ -142,21 +147,28 @@ class NormalPokemon extends Pokemon {
       Math.floor(Math.random() * damage) + 1
     );
 
-    console.log(`${this.name} uses STOMP and deals ${totalDamage}`);
-    super.receiveDamage(opponent, totalDamage);
+    console.log(
+      `${this.name} uses STOMP and deals ${totalDamage[0]}`,
+      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    );
+    super.receiveDamage(opponent, totalDamage[0]);
   }
 }
 class BugPokemon extends Pokemon {
   constructor(name) {
-    super(name, "Bug", 1, 10, 10);
+    const level = Math.floor(Math.random() * 2) + 1; // Get random level
+    super(name, "Bug", level, level * 10, level * 10);
   }
 
   skill1(opponent) {
     super.attack();
     const totalDamage = this.calculateDamage(this.level * 1);
 
-    console.log(`${this.name} uses BUG-BITE and deals ${totalDamage}`);
-    super.receiveDamage(opponent, totalDamage);
+    console.log(
+      `${this.name} uses BUG-BITE and deals ${totalDamage[0]}`,
+      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    );
+    super.receiveDamage(opponent, totalDamage[0]);
   }
   skill2(opponent) {
     super.attack();
@@ -166,21 +178,28 @@ class BugPokemon extends Pokemon {
       Math.floor(Math.random() * damage) + 1
     );
 
-    console.log(`${this.name} uses INFESTATION and deals ${totalDamage}`);
-    super.receiveDamage(opponent, totalDamage);
+    console.log(
+      `${this.name} uses INFESTATION and deals ${totalDamage[0]}`,
+      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    );
+    super.receiveDamage(opponent, totalDamage[0]);
   }
 }
 class PsychicPokemon extends Pokemon {
   constructor(name) {
-    super(name, "Psychic", 1, 10, 10);
+    const level = Math.floor(Math.random() * 2) + 1; // Get random level
+    super(name, "Psychic", level, level * 10, level * 10);
   }
 
   skill1(opponent) {
     super.attack();
     const totalDamage = this.calculateDamage(this.level * 1);
 
-    console.log(`${this.name} uses IMPRISON and deals ${totalDamage}`);
-    super.receiveDamage(opponent, totalDamage);
+    console.log(
+      `${this.name} uses IMPRISON and deals ${totalDamage[0]}`,
+      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    );
+    super.receiveDamage(opponent, totalDamage[0]);
   }
   skill2(opponent) {
     super.attack();
@@ -190,21 +209,28 @@ class PsychicPokemon extends Pokemon {
       Math.floor(Math.random() * damage) + 1
     );
 
-    console.log(`${this.name} uses TRICK and deals ${totalDamage}`);
-    super.receiveDamage(opponent, totalDamage);
+    console.log(
+      `${this.name} uses TRICK and deals ${totalDamage[0]}`,
+      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    );
+    super.receiveDamage(opponent, totalDamage[0]);
   }
 }
 class FairyPokemon extends Pokemon {
   constructor(name) {
-    super(name, "Psychic", 1, 10, 10);
+    const level = Math.floor(Math.random() * 2) + 1; // Get random level
+    super(name, "Psychic", level, level * 10, level * 10);
   }
 
   skill1(opponent) {
     super.attack();
     const totalDamage = this.calculateDamage(this.level * 1);
 
-    console.log(`${this.name} uses GEOMANCY and deals ${totalDamage}`);
-    super.receiveDamage(opponent, totalDamage);
+    console.log(
+      `${this.name} uses GEOMANCY and deals ${totalDamage[0]}`,
+      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    );
+    super.receiveDamage(opponent, totalDamage[0]);
   }
   skill2(opponent) {
     super.attack();
@@ -214,21 +240,28 @@ class FairyPokemon extends Pokemon {
       Math.floor(Math.random() * damage) + 1
     );
 
-    console.log(`${this.name} uses MAX-STARFALL and deals ${totalDamage}`);
-    super.receiveDamage(opponent, totalDamage);
+    console.log(
+      `${this.name} uses MAX-STARFALL and deals ${totalDamage[0]}`,
+      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    );
+    super.receiveDamage(opponent, totalDamage[0]);
   }
 }
 class SteelPokemon extends Pokemon {
   constructor(name) {
-    super(name, "Psychic", 1, 10, 10);
+    const level = Math.floor(Math.random() * 2) + 1; // Get random level
+    super(name, "Psychic", level, level * 10, level * 10);
   }
 
   skill1(opponent) {
     super.attack();
     const totalDamage = this.calculateDamage(this.level * 1);
 
-    console.log(`${this.name} uses BULLET-PUNCH and deals ${totalDamage}`);
-    super.receiveDamage(opponent, totalDamage);
+    console.log(
+      `${this.name} uses BULLET-PUNCH and deals ${totalDamage[0]}`,
+      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    );
+    super.receiveDamage(opponent, totalDamage[0]);
   }
   skill2(opponent) {
     super.attack();
@@ -238,70 +271,169 @@ class SteelPokemon extends Pokemon {
       Math.floor(Math.random() * damage) + 1
     );
 
-    console.log(`${this.name} uses SMART-STRIKE and deals ${totalDamage}`);
-    super.receiveDamage(opponent, totalDamage);
+    console.log(
+      `${this.name} uses SMART-STRIKE and deals ${totalDamage[0]}`,
+      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    );
+    super.receiveDamage(opponent, totalDamage[0]);
   }
 }
 
 // Battle
 class Battle {
-  constructor(player1, player2) {
-    this.player1 = player1;
-    this.player2 = player2;
-    this.pokemon1 = player1.pokemonList[Math.floor(Math.random() * 2)];
-    player1.pokemonList.splice(player1.pokemonList.indexOf(this.pokemon1), 1);
-    this.pokemon2 = player2.pokemonList[Math.floor(Math.random() * 2)];
-    player2.pokemonList.splice(player2.pokemonList.indexOf(this.pokemon2), 1);
+  constructor() {
+    console.log(
+      "%cBattle of the Pokemons",
+      "color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 32px; padding: 4px; border-radius: 4px;"
+    );
+
+    this.randomPlayer();
   }
 
-  battle() {
-    console.log("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~");
-    console.log(`AutoBattle`);
-    console.log(`${this.player1.name} vs ${this.player2.name}`);
-    console.log(`${this.pokemon1.name} vs ${this.pokemon2.name}`);
-    console.log("~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~");
+  resetPlayer() {
+    // Resets players
+    this.player1 = {};
+    this.player2 = {};
+  }
+  randomPlayer() {
+    // Select current players to play
+    this.player1 = trainers[Math.floor(Math.random() * trainers.length)];
+    trainers.splice(trainers.indexOf(this.player1), 1);
 
-    let players = [this.player1, this.player2];
-    let pokemons = [this.pokemon1, this.pokemon2];
-    let turn = 0;
+    this.player2 = trainers[Math.floor(Math.random() * trainers.length)];
+    trainers.splice(trainers.indexOf(this.player2), 1);
+
+    this.randomPokemon();
+  }
+  randomPokemon() {
+    // Get random pokemon from trainer's pokemonList
+    let maxPokemon1 = this.player1.pokemonList.length;
+    this.pokemon1 =
+      this.player1.pokemonList[Math.floor(Math.random() * maxPokemon1)];
+    this.player1.pokemonList.splice(
+      this.player1.pokemonList.indexOf(this.pokemon1),
+      1
+    );
+
+    let maxPokemon2 = this.player2.pokemonList.length;
+    this.pokemon2 =
+      this.player2.pokemonList[Math.floor(Math.random() * maxPokemon2)];
+    this.player2.pokemonList.splice(
+      this.player2.pokemonList.indexOf(this.pokemon2),
+      1
+    );
+  }
+
+  // Start battle
+  battle() {
+    let winnersBracket = [];
+    let battleCount = 1;
 
     while (true) {
-      let move = Math.floor(Math.random() * 3);
+      console.log("");
+      console.log(
+        `%cAutoBattle ${battleCount}: ${this.player1.name} vs ${this.player2.name}`,
+        "color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 16px; padding: 4px; border-radius: 4px;"
+      );
 
-      console.log(`\n~ ~ ~ ${pokemons[turn].name}'s turn ~ ~ ~`);
-      switch (move) {
-        case 0: // Skill 1
-          pokemons[turn].skill1(pokemons[turn == 0 ? 1 : 0]);
-          break;
-        case 1: // Skill 2
-          pokemons[turn].skill2(pokemons[turn == 0 ? 1 : 0]);
-          break;
-        case 2: // Heal
-          if (pokemons[turn].hp == pokemons[turn].maxHp) {
-            if (move == 0) pokemons[turn].skill1(pokemons[turn == 0 ? 1 : 0]);
-            else if (move == 1)
-              pokemons[turn].skill2(pokemons[turn == 0 ? 1 : 0]);
+      let players = [this.player1, this.player2];
+      let pokemons = [this.pokemon1, this.pokemon2];
+      let turn = 0;
+
+      pokemons.forEach((pokemon, index) => {
+        console.log(
+          `%c${players[index].name}: ${pokemon.name}, I choose you!`,
+          `color: white; background-color: ${colors[index]}; font-size: 12px; padding: 4px; border-radius: 4px;`
+        );
+      });
+
+      while (true) {
+        let move = Math.floor(Math.random() * 3); // RNG move
+
+        console.log("");
+        console.log(
+          `%c[${players[turn].name}] ${pokemons[turn].name}`,
+          `color: white; background-color: ${colors[turn]}; font-size: 12px; padding: 4px; border-radius: 4px;`
+        );
+        switch (move) {
+          case 0: // Skill 1
+            pokemons[turn].skill1(pokemons[turn === 0 ? 1 : 0]);
+            break;
+          case 1: // Skill 2
+            pokemons[turn].skill2(pokemons[turn === 0 ? 1 : 0]);
+            break;
+          case 2: // Heal
+            if (pokemons[turn].hp === pokemons[turn].maxHp) {
+              move = Math.floor(Math.random() * 2); // RNG move
+
+              if (move === 0)
+                pokemons[turn].skill1(pokemons[turn === 0 ? 1 : 0]);
+              else if (move === 1)
+                pokemons[turn].skill2(pokemons[turn === 0 ? 1 : 0]);
+            } else {
+              pokemons[turn].heal();
+            }
+            break;
+        }
+
+        turn = turn === 0 ? 1 : 0; // Turn of the other pokemon
+
+        if (pokemons[turn].hp <= 0) {
+          console.log(`${pokemons[turn].name} fainted!`);
+
+          turn = turn === 0 ? 1 : 0; // Change to winner
+          console.log("");
+          console.log(
+            `%c[${players[turn].name}] ${pokemons[turn].name} wins!`,
+            `color: white; background-color: ${
+              colors[turn + 2]
+            }; font-size: 12px; padding: 4px; border-radius: 4px;`
+          );
+          pokemons[turn].powerUp();
+
+          turn = turn === 0 ? 1 : 0; // Change to loser back
+          pokemons[turn] = players[turn].pokemonList.pop();
+
+          // If there's no pokemon left from current trainer
+          if (!pokemons[turn]) {
+            turn = turn === 0 ? 1 : 0; // Change to winner
+
+            // Put the winner's pokemon back to pokemonList
+            players[turn].pokemonList.push(pokemons[turn]);
+            winnersBracket.push(players[turn]);
+            this.resetPlayer();
+
+            break;
           } else {
-            pokemons[turn].heal();
+            console.log("");
+            console.log(
+              `${players[turn].name}: ${pokemons[turn].name}, I choose you!`,
+              `color: white; background-color: ${colors[turn]}; font-size: 12px; padding: 4px; border-radius: 4px;`
+            );
           }
-          break;
+        }
       }
 
-      turn = turn == 0 ? 1 : 0; // Turn of the other pokemon
-
-      if (pokemons[turn].hp <= 0) {
-        turn = turn == 0 ? 1 : 0; // Change to winner
+      battleCount++; // New Battle
+      if (trainers.length === 0 && winnersBracket.length === 1) {
         console.log("");
-        console.log("~ ~ ~ ~ ~");
-        console.log(`${players[turn].name} wins!`);
-        pokemons[turn].powerUp();
-        console.log("~ ~ ~ ~ ~");
+        console.log(
+          "%cBattle of the Pokemons",
+          "color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 32px; padding: 4px; border-radius: 4px;"
+        );
+        console.log(
+          `%cTOURNAMENT WINNER: ${winnersBracket[0].name}`,
+          `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 16px; padding: 4px; border-radius: 4px;`
+        );
 
         break;
-      }
-    }
+      } else if (trainers.length === 1 && winnersBracket.length > 0) {
+        trainers.push(...winnersBracket);
+        winnersBracket = [];
 
-    // console.log(player1_moves);
+        this.randomPlayer();
+      } else this.randomPlayer();
+    }
   }
 }
 
@@ -324,12 +456,7 @@ const ken = new Trainer("Ken", [tinkatink, cottonee]);
 const joeshua = new Trainer("Joeshua", [vivillon, togekiss]);
 const jonas = new Trainer("Jonas", [pidgey, solosis]);
 
+// Start Battle
 let trainers = [jedd, jun, ken, joeshua, jonas];
-
-let player1 = trainers[Math.floor(Math.random() * trainers.length)];
-trainers.splice(trainers.indexOf(player1), 1);
-let player2 = trainers[Math.floor(Math.random() * trainers.length)];
-trainers.splice(trainers.indexOf(player2), 1);
-
-let pvp = new Battle(player1, player2);
+let pvp = new Battle();
 pvp.battle();
