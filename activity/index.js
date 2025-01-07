@@ -45,7 +45,7 @@
     - shadow
 */
 
-const colors = ["#660000", "#000066", "#330000", "#000033"];
+const colors = ["#990000", "#000099", "#660000", "#000066"];
 
 class Trainer {
   constructor(name, pokemonList) {
@@ -56,16 +56,19 @@ class Trainer {
   myPokemons(color) {
     this.pokemonList.forEach((pokemon) => {
       console.log(
-        `%cPokemon: ${pokemon.name}\nType: ${pokemon.type}\nLevel: ${pokemon.level}\nHP: ${pokemon.hp}`,
-        `color: white; background-color: ${color}; font-size: 16px; padding: 4px; border-radius: 4px;`
+        `%cPokemon: ${pokemon.name}\nType: ${pokemon.type}\nLevel: ${
+          pokemon.level
+        }\nEXP: ${pokemon.exp}/${pokemon.level * 5}\nHP: ${pokemon.hp}`,
+        `color: white; background-color: ${color}; font-size: 12px; padding: 4px; border-radius: 4px;`
       );
     });
   }
 }
 class Pokemon {
-  constructor(name, type, level, maxHp, hp, s1, s2) {
+  constructor(name, type, exp, level, maxHp, hp, s1, s2) {
     this.name = name;
     this.type = type;
+    this.exp = exp;
     this.level = level;
     this.maxHp = maxHp;
     this.hp = hp;
@@ -101,13 +104,19 @@ class Pokemon {
     this.receiveDamage(opponent, damageDealt);
   }
   powerUp() {
-    this.level += 1;
-    this.maxHp += 10;
-    this.hp += this.level * 5;
+    this.exp += 5;
+    this.hp += 5;
 
-    console.log(
-      `${this.name} powered up!\nNew Level: ${this.level}\nNew Max HP: ${this.maxHp}\nNew HP: ${this.hp}`
-    );
+    if (this.exp === this.level * 5) {
+      this.exp = 0;
+      this.level += 1;
+      this.maxHp += 10;
+      this.hp += this.level * 5;
+
+      console.log(
+        `${this.name} powered up!\nNew Level: ${this.level}\nNew Max HP: ${this.maxHp}\nNew HP: ${this.hp}`
+      );
+    }
   }
   heal() {
     const healthRatio = this.hp / this.maxHp;
@@ -142,7 +151,16 @@ class Pokemon {
 class NormalPokemon extends Pokemon {
   constructor(name) {
     const level = Math.floor(Math.random() * 2) + 1; // Get random level
-    super(name, "Normal", level, level * 10, level * 10, "HEADBUTT", "STOMP");
+    super(
+      name,
+      "Normal",
+      0,
+      level,
+      level * 10,
+      level * 10,
+      "HEADBUTT",
+      "STOMP"
+    );
   }
 }
 class BugPokemon extends Pokemon {
@@ -151,6 +169,7 @@ class BugPokemon extends Pokemon {
     super(
       name,
       "Bug",
+      0,
       level,
       level * 10,
       level * 10,
@@ -162,7 +181,16 @@ class BugPokemon extends Pokemon {
 class PsychicPokemon extends Pokemon {
   constructor(name) {
     const level = Math.floor(Math.random() * 2) + 1; // Get random level
-    super(name, "Psychic", level, level * 10, level * 10, "IMPRISON", "TRICK");
+    super(
+      name,
+      "Psychic",
+      0,
+      level,
+      level * 10,
+      level * 10,
+      "IMPRISON",
+      "TRICK"
+    );
   }
 }
 class FairyPokemon extends Pokemon {
@@ -171,6 +199,7 @@ class FairyPokemon extends Pokemon {
     super(
       name,
       "Psychic",
+      0,
       level,
       level * 10,
       level * 10,
@@ -185,6 +214,7 @@ class SteelPokemon extends Pokemon {
     super(
       name,
       "Psychic",
+      0,
       level,
       level * 10,
       level * 10,
@@ -199,7 +229,7 @@ class Battle {
   constructor() {
     console.log(
       "%cBattle of the Pokemons",
-      `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 32px; padding: 4px; border-radius: 4px;`
+      `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 40px; padding: 4px; border-radius: 4px;`
     );
 
     this.randomPlayer();
@@ -221,15 +251,15 @@ class Battle {
     // Logo
     console.log(
       `%c${this.player1.name} vs ${this.player2.name}`,
-      `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 24px; padding: 4px; border-radius: 4px;`
+      `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 32px; padding: 4px; border-radius: 4px;`
     );
 
     // Check player's pokemons
     let players = [this.player1, this.player2];
     players.forEach((player, index) => {
       console.log(
-        `%c${player.name}`,
-        `color: white; background-color: ${colors[index]}; font-size: 18px; padding: 4px; border-radius: 4px;`
+        `%cPokemons of ${player.name}`,
+        `color: white; background-color: ${colors[index]}; font-size: 24px; padding: 4px; border-radius: 4px;`
       );
       player.myPokemons(colors[index + 2]);
       console.log("");
