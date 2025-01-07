@@ -69,50 +69,62 @@ class Trainer {
   }
 }
 class Pokemon {
-  constructor(name, type, level, maxHp, hp) {
+  constructor(name, type, level, maxHp, hp, s1, s2) {
     this.name = name;
     this.type = type;
     this.level = level;
     this.maxHp = maxHp;
     this.hp = hp;
+    this.s1 = s1;
+    this.s2 = s2;
   }
 
+  // Methods
   attack() {
     console.log(`${this.name} attacks!`);
   }
   receiveDamage(opponent, damage) {
-    opponent.hp -= damage;
-    console.log(`${opponent.name} remaining hp is ${opponent.hp}`);
+    const newHp = opponent.hp - damage;
+    opponent.hp = newHp;
+
+    if (newHp > 0) console.log(`${opponent.name} remaining hp is ${newHp}`);
+    else console.log(`${opponent.name} fainted!`);
   }
-  calculateDamage(damage) {
-    // Ratio of health
+  calculateDamage(opponent, skill, damage) {
     const healthRatio = this.hp / this.maxHp;
-
-    // Crit chance depending on ratio
     const critChance = 1 - healthRatio;
+    const isCriticalHit = Math.random() + 0.2 < critChance;
 
-    // Randomizer with crit
-    const isCriticalHit = Math.random() < critChance;
+    const newDamage = damage + (this.level - 1);
+    const damageMultiplier = isCriticalHit ? 1.5 : 0;
 
-    // Damage
-    const damageMultiplier = isCriticalHit ? 2 : 1;
-    const damageDealt =
-      Math.floor(Math.random() * damage * damageMultiplier) + 1;
+    const damageDealt = Math.round(damage * damageMultiplier) + newDamage;
+    console.log(
+      `${this.name} uses ${skill} and deals ${damageDealt}`,
+      `${isCriticalHit ? "~CRITICAL HIT~" : ""}`
+    );
 
-    return [damageDealt, isCriticalHit];
+    this.receiveDamage(opponent, damageDealt);
   }
   powerUp() {
     this.level += 1;
-    this.maxHp = this.level * 10;
-    this.hp += 10;
+    this.maxHp += 10;
+    this.hp += this.level * 5;
 
     console.log(
       `${this.name} powered up!\nNew Level: ${this.level}\nNew Max HP: ${this.maxHp}\nNew HP: ${this.hp}`
     );
   }
   heal() {
-    // totalHealing = (random)
-    const totalHealing = Math.floor(Math.random() * (this.level + 2)) + 1;
+    const healthRatio = this.hp / this.maxHp;
+    const moreHealthChance = 1 - healthRatio;
+    const isMoreHealth = Math.random() + 0.2 < moreHealthChance;
+
+    const defaultHeal = 2;
+    const newHeal = defaultHeal + (this.level - 1);
+    const healMultiplier = isMoreHealth ? 2 : 0;
+
+    const totalHealing = Math.round(defaultHeal * healMultiplier) + newHeal;
     this.hp =
       this.hp + totalHealing > this.maxHp ? this.maxHp : this.hp + totalHealing;
 
@@ -120,162 +132,71 @@ class Pokemon {
     if (this.hp + totalHealing > this.maxHp) console.log(`Max HP reached!`);
     console.log(`${this.name} new hp is ${this.hp} HP!`);
   }
+
+  // Skills
+  skill1(opponent) {
+    this.attack();
+    this.calculateDamage(opponent, this.s1, 1);
+  }
+  skill2(opponent) {
+    this.attack();
+    this.calculateDamage(opponent, this.s2, 2);
+  }
 }
 
 // Types of Pokemons
 class NormalPokemon extends Pokemon {
   constructor(name) {
     const level = Math.floor(Math.random() * 2) + 1; // Get random level
-    super(name, "Normal", level, level * 10, level * 10);
-  }
-
-  skill1(opponent) {
-    super.attack();
-    const totalDamage = this.calculateDamage(this.level * 1);
-
-    console.log(
-      `${this.name} uses HEADBUTT and deals ${totalDamage[0]}`,
-      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
-    );
-    super.receiveDamage(opponent, totalDamage[0]);
-  }
-  skill2(opponent) {
-    super.attack();
-    const damageChance = Math.random() < 0.6;
-    const damage = damageChance ? this.level * 3 : this.level * 1;
-    const totalDamage = this.calculateDamage(
-      Math.floor(Math.random() * damage) + 1
-    );
-
-    console.log(
-      `${this.name} uses STOMP and deals ${totalDamage[0]}`,
-      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
-    );
-    super.receiveDamage(opponent, totalDamage[0]);
+    super(name, "Normal", level, level * 10, level * 10, "HEADBUTT", "STOMP");
   }
 }
 class BugPokemon extends Pokemon {
   constructor(name) {
     const level = Math.floor(Math.random() * 2) + 1; // Get random level
-    super(name, "Bug", level, level * 10, level * 10);
-  }
-
-  skill1(opponent) {
-    super.attack();
-    const totalDamage = this.calculateDamage(this.level * 1);
-
-    console.log(
-      `${this.name} uses BUG-BITE and deals ${totalDamage[0]}`,
-      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    super(
+      name,
+      "Bug",
+      level,
+      level * 10,
+      level * 10,
+      "BUG-BITE",
+      "INFESTATION"
     );
-    super.receiveDamage(opponent, totalDamage[0]);
-  }
-  skill2(opponent) {
-    super.attack();
-    const damageChance = Math.random() < 0.6;
-    const damage = damageChance ? this.level * 3 : this.level * 1;
-    const totalDamage = this.calculateDamage(
-      Math.floor(Math.random() * damage) + 1
-    );
-
-    console.log(
-      `${this.name} uses INFESTATION and deals ${totalDamage[0]}`,
-      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
-    );
-    super.receiveDamage(opponent, totalDamage[0]);
   }
 }
 class PsychicPokemon extends Pokemon {
   constructor(name) {
     const level = Math.floor(Math.random() * 2) + 1; // Get random level
-    super(name, "Psychic", level, level * 10, level * 10);
-  }
-
-  skill1(opponent) {
-    super.attack();
-    const totalDamage = this.calculateDamage(this.level * 1);
-
-    console.log(
-      `${this.name} uses IMPRISON and deals ${totalDamage[0]}`,
-      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
-    );
-    super.receiveDamage(opponent, totalDamage[0]);
-  }
-  skill2(opponent) {
-    super.attack();
-    const damageChance = Math.random() < 0.6;
-    const damage = damageChance ? this.level * 3 : this.level * 1;
-    const totalDamage = this.calculateDamage(
-      Math.floor(Math.random() * damage) + 1
-    );
-
-    console.log(
-      `${this.name} uses TRICK and deals ${totalDamage[0]}`,
-      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
-    );
-    super.receiveDamage(opponent, totalDamage[0]);
+    super(name, "Psychic", level, level * 10, level * 10, "IMPRISON", "TRICK");
   }
 }
 class FairyPokemon extends Pokemon {
   constructor(name) {
     const level = Math.floor(Math.random() * 2) + 1; // Get random level
-    super(name, "Psychic", level, level * 10, level * 10);
-  }
-
-  skill1(opponent) {
-    super.attack();
-    const totalDamage = this.calculateDamage(this.level * 1);
-
-    console.log(
-      `${this.name} uses GEOMANCY and deals ${totalDamage[0]}`,
-      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    super(
+      name,
+      "Psychic",
+      level,
+      level * 10,
+      level * 10,
+      "GEOMANCY",
+      "MAX-STARFALL"
     );
-    super.receiveDamage(opponent, totalDamage[0]);
-  }
-  skill2(opponent) {
-    super.attack();
-    const damageChance = Math.random() < 0.6;
-    const damage = damageChance ? this.level * 3 : this.level * 1;
-    const totalDamage = this.calculateDamage(
-      Math.floor(Math.random() * damage) + 1
-    );
-
-    console.log(
-      `${this.name} uses MAX-STARFALL and deals ${totalDamage[0]}`,
-      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
-    );
-    super.receiveDamage(opponent, totalDamage[0]);
   }
 }
 class SteelPokemon extends Pokemon {
   constructor(name) {
     const level = Math.floor(Math.random() * 2) + 1; // Get random level
-    super(name, "Psychic", level, level * 10, level * 10);
-  }
-
-  skill1(opponent) {
-    super.attack();
-    const totalDamage = this.calculateDamage(this.level * 1);
-
-    console.log(
-      `${this.name} uses BULLET-PUNCH and deals ${totalDamage[0]}`,
-      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
+    super(
+      name,
+      "Psychic",
+      level,
+      level * 10,
+      level * 10,
+      "BULLET-PUNCH",
+      "SMART-STRIKE"
     );
-    super.receiveDamage(opponent, totalDamage[0]);
-  }
-  skill2(opponent) {
-    super.attack();
-    const damageChance = Math.random() < 0.6;
-    const damage = damageChance ? this.level * 3 : this.level * 1;
-    const totalDamage = this.calculateDamage(
-      Math.floor(Math.random() * damage) + 1
-    );
-
-    console.log(
-      `${this.name} uses SMART-STRIKE and deals ${totalDamage[0]}`,
-      `${totalDamage[1] ? "~CRITICAL HIT~" : ""}`
-    );
-    super.receiveDamage(opponent, totalDamage[0]);
   }
 }
 
@@ -284,7 +205,7 @@ class Battle {
   constructor() {
     console.log(
       "%cBattle of the Pokemons",
-      "color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 32px; padding: 4px; border-radius: 4px;"
+      `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 32px; padding: 4px; border-radius: 4px;`
     );
 
     this.randomPlayer();
@@ -330,10 +251,9 @@ class Battle {
     let battleCount = 1;
 
     while (true) {
-      console.log("");
       console.log(
         `%cAutoBattle ${battleCount}: ${this.player1.name} vs ${this.player2.name}`,
-        "color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 16px; padding: 4px; border-radius: 4px;"
+        `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 24px; padding: 4px; border-radius: 4px;`
       );
 
       let players = [this.player1, this.player2];
@@ -342,8 +262,8 @@ class Battle {
 
       pokemons.forEach((pokemon, index) => {
         console.log(
-          `%c${players[index].name}: ${pokemon.name}, I choose you!`,
-          `color: white; background-color: ${colors[index]}; font-size: 12px; padding: 4px; border-radius: 4px;`
+          `%c[${players[index].name}] ${pokemon.name}, I choose you!`,
+          `color: white; background-color: ${colors[index]}; font-size: 16px; padding: 4px; border-radius: 4px;`
         );
       });
 
@@ -353,7 +273,7 @@ class Battle {
         console.log("");
         console.log(
           `%c[${players[turn].name}] ${pokemons[turn].name}`,
-          `color: white; background-color: ${colors[turn]}; font-size: 12px; padding: 4px; border-radius: 4px;`
+          `color: white; background-color: ${colors[turn]}; font-size: 16px; padding: 4px; border-radius: 4px;`
         );
         switch (move) {
           case 0: // Skill 1
@@ -379,15 +299,13 @@ class Battle {
         turn = turn === 0 ? 1 : 0; // Turn of the other pokemon
 
         if (pokemons[turn].hp <= 0) {
-          console.log(`${pokemons[turn].name} fainted!`);
-
           turn = turn === 0 ? 1 : 0; // Change to winner
           console.log("");
           console.log(
             `%c[${players[turn].name}] ${pokemons[turn].name} wins!`,
             `color: white; background-color: ${
               colors[turn + 2]
-            }; font-size: 12px; padding: 4px; border-radius: 4px;`
+            }; font-size: 16px; padding: 4px; border-radius: 4px;`
           );
           pokemons[turn].powerUp();
 
@@ -407,8 +325,8 @@ class Battle {
           } else {
             console.log("");
             console.log(
-              `${players[turn].name}: ${pokemons[turn].name}, I choose you!`,
-              `color: white; background-color: ${colors[turn]}; font-size: 12px; padding: 4px; border-radius: 4px;`
+              `%c[${players[turn].name}] ${pokemons[turn].name}, I choose you!`,
+              `color: white; background-color: ${colors[turn]}; font-size: 16px; padding: 4px; border-radius: 4px;`
             );
           }
         }
@@ -419,11 +337,11 @@ class Battle {
         console.log("");
         console.log(
           "%cBattle of the Pokemons",
-          "color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 32px; padding: 4px; border-radius: 4px;"
+          `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 32px; padding: 4px; border-radius: 4px;`
         );
         console.log(
           `%cTOURNAMENT WINNER: ${winnersBracket[0].name}`,
-          `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 16px; padding: 4px; border-radius: 4px;`
+          `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 24px; padding: 4px; border-radius: 4px;`
         );
 
         break;
@@ -433,6 +351,8 @@ class Battle {
 
         this.randomPlayer();
       } else this.randomPlayer();
+
+      console.log("");
     }
   }
 }
