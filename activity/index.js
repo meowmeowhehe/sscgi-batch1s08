@@ -53,19 +53,13 @@ class Trainer {
     this.pokemonList = pokemonList;
   }
 
-  myPokemons() {
-    console.log(`~ ${this.name}'s Pokemons ~`);
+  myPokemons(color) {
     this.pokemonList.forEach((pokemon) => {
-      console.log(`\t~ ~ ~ ~ ~`);
-      console.log(`\t\t[${pokemon.status}]`);
-      console.log(`\t\tPokemon: ${pokemon.pokemon}`);
-      console.log(`\t\tName: ${pokemon.name}`);
-      console.log(`\t\tType: ${pokemon.type}`);
-      console.log(`\t\tLevel: ${pokemon.level}`);
-      console.log(`\t\tHP: ${pokemon.hp}`);
-      console.log(`\t~ ~ ~ ~ ~`);
+      console.log(
+        `%cPokemon: ${pokemon.name}\nType: ${pokemon.type}\nLevel: ${pokemon.level}\nHP: ${pokemon.hp}`,
+        `color: white; background-color: ${color}; font-size: 16px; padding: 4px; border-radius: 4px;`
+      );
     });
-    console.log(`~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~`);
   }
 }
 class Pokemon {
@@ -224,6 +218,23 @@ class Battle {
     this.player2 = trainers[Math.floor(Math.random() * trainers.length)];
     trainers.splice(trainers.indexOf(this.player2), 1);
 
+    // Logo
+    console.log(
+      `%c${this.player1.name} vs ${this.player2.name}`,
+      `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 24px; padding: 4px; border-radius: 4px;`
+    );
+
+    // Check player's pokemons
+    let players = [this.player1, this.player2];
+    players.forEach((player, index) => {
+      console.log(
+        `%c${player.name}`,
+        `color: white; background-color: ${colors[index]}; font-size: 18px; padding: 4px; border-radius: 4px;`
+      );
+      player.myPokemons(colors[index + 2]);
+      console.log("");
+    });
+
     this.randomPokemon();
   }
   randomPokemon() {
@@ -248,14 +259,8 @@ class Battle {
   // Start battle
   battle() {
     let winnersBracket = [];
-    let battleCount = 1;
 
     while (true) {
-      console.log(
-        `%cAutoBattle ${battleCount}: ${this.player1.name} vs ${this.player2.name}`,
-        `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 24px; padding: 4px; border-radius: 4px;`
-      );
-
       let players = [this.player1, this.player2];
       let pokemons = [this.pokemon1, this.pokemon2];
       let turn = 0;
@@ -332,9 +337,8 @@ class Battle {
         }
       }
 
-      battleCount++; // New Battle
+      console.log("");
       if (trainers.length === 0 && winnersBracket.length === 1) {
-        console.log("");
         console.log(
           "%cBattle of the Pokemons",
           `color: #FFCB05; background-color: #1D2C5E; font-weight: bold; font-size: 32px; padding: 4px; border-radius: 4px;`
@@ -351,30 +355,58 @@ class Battle {
 
         this.randomPlayer();
       } else this.randomPlayer();
-
-      console.log("");
     }
   }
 }
 
 // Pokemons
-let pidgey = new NormalPokemon("Pidgey");
-let meowth = new NormalPokemon("Meowth");
-let vivillon = new BugPokemon("Vivillon");
-let grubbin = new BugPokemon("Grubbin");
-let solosis = new PsychicPokemon("Solosis");
-let duosion = new PsychicPokemon("Duosion");
-let togekiss = new FairyPokemon("Togekiss");
-let cottonee = new FairyPokemon("Cottonee");
-let tinkatink = new SteelPokemon("Tinkatink");
-let varoom = new SteelPokemon("Varoom");
+// new NormalPokemon("Pidgey")
+// new NormalPokemon("Meowth")
+// new BugPokemon("Vivillon")
+// new BugPokemon("Grubbin")
+// new PsychicPokemon("Solosis")
+// new PsychicPokemon("Duosion")
+// new FairyPokemon("Togekiss")
+// new FairyPokemon("Cottonee")
+// new SteelPokemon("Tinkatink")
+// new SteelPokemon("Varoom")
 
 // Trainers
-const jedd = new Trainer("Jedd", [duosion, varoom]);
-const jun = new Trainer("Jun", [meowth, grubbin]);
-const ken = new Trainer("Ken", [tinkatink, cottonee]);
-const joeshua = new Trainer("Joeshua", [vivillon, togekiss]);
-const jonas = new Trainer("Jonas", [pidgey, solosis]);
+const jedd = new Trainer("Jedd", [
+  new PsychicPokemon("Duosion"),
+  new SteelPokemon("Varoom"),
+  new NormalPokemon("Meowth"),
+  new BugPokemon("Grubbin"),
+  new SteelPokemon("Tinkatink"),
+]);
+const jun = new Trainer("Jun", [
+  new NormalPokemon("Meowth"),
+  new BugPokemon("Grubbin"),
+  new SteelPokemon("Tinkatink"),
+  new FairyPokemon("Cottonee"),
+  new BugPokemon("Vivillon"),
+]);
+const ken = new Trainer("Ken", [
+  new SteelPokemon("Tinkatink"),
+  new FairyPokemon("Cottonee"),
+  new PsychicPokemon("Duosion"),
+  new SteelPokemon("Varoom"),
+  new NormalPokemon("Meowth"),
+]);
+const joeshua = new Trainer("Joeshua", [
+  new BugPokemon("Vivillon"),
+  new FairyPokemon("Togekiss"),
+  new NormalPokemon("Meowth"),
+  new BugPokemon("Grubbin"),
+  new SteelPokemon("Tinkatink"),
+]);
+const jonas = new Trainer("Jonas", [
+  new NormalPokemon("Pidgey"),
+  new PsychicPokemon("Solosis"),
+  new SteelPokemon("Tinkatink"),
+  new FairyPokemon("Cottonee"),
+  new PsychicPokemon("Duosion"),
+]);
 
 // Start Battle
 let trainers = [jedd, jun, ken, joeshua, jonas];
