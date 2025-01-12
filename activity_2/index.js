@@ -18,10 +18,40 @@
   [2] USED KEYDOWN EVENT LISTENER WITH LOGIC
 */
 
-// ~~~~~ GLOBAL ~~~~~ //
-let noOfPlayers = 0;
+// ~~~~~~~~~~ GLOBAL ~~~~~~~~~~ //
+let colors = ["#FF3333", "#3333FF"];
+let noOfTrainers = 0;
 let noOfPokemons = 0;
 let trainers = [];
+
+// ~~~~~ DIALOGUES ~~~~~ //
+let pokemonSelectDialogues = (fighter, pokemon) => [
+  `%c[TRAINER]%c ${fighter.trainer} sends out %c[POKEMON]%c ${pokemon.name} ~${pokemon.type}~. It's ready for battle!`,
+  `With confidence, %c[TRAINER]%c ${fighter.trainer} chooses %c[POKEMON]%c ${pokemon.name} ~${pokemon.type}~. The fight is on!`,
+  `%c[TRAINER]%c ${fighter.trainer} calls upon %c[POKEMON]%c ${pokemon.name} ~${pokemon.type}~. It leaps into action!`,
+];
+let pokemonTurnDialogues = (fighter, pokemon, skill, damage, isCriticalHit) => [
+  `%c[TRAINER]%c ${fighter.trainer}'s %c[POKEMON]%c ${pokemon.name} ~${
+    pokemon.type
+  }~ steps forward, ready to act. '%c${skill}%c, now!'. It deals %c💢 ${damage} 💢%c damage. ${
+    isCriticalHit ? "%c💥❗ CRITICAL HIT ❗💥" : ""
+  }`,
+  `%c[TRAINER]%c ${fighter.trainer} shouts, '%c[POKEMON]%c ${pokemon.name} ~${
+    pokemon.type
+  }~, use %c${skill}%c!' The Pokémon responds with swift precision, dealing %c💢 ${damage} 💢%c damage. ${
+    isCriticalHit ? "%c💥❗ CRITICAL HIT ❗💥" : ""
+  }`,
+  `%c[TRAINER]%c ${fighter.trainer}'s %c[POKEMON]%c ${pokemon.name} ~${
+    pokemon.type
+  }~ focuses its energy. '%c${skill}%c!', dealing %c💢 ${damage} 💢%c damage. ${
+    isCriticalHit ? "%c💥❗ CRITICAL HIT ❗💥" : ""
+  }`,
+];
+let pokemonHealDialogues = (fighter, pokemon, healAmount) => [
+  `%c[TRAINER]%c ${fighter.trainer}'s %c[POKEMON]%c ${pokemon} uses heal. It heals for $%c🩹 ${healAmount} 🩹%chealth!`,
+  `%c[TRAINER]%c ${fighter.trainer} commands, '%c[POKEMON]%c ${pokemon}, use heal!' The Pokémon regains %c🩹 ${healAmount} 🩹%c health.`,
+  `%c[TRAINER]%c ${fighter.trainer}'s %c[POKEMON]%c ${pokemon} focuses and uses heal. It recovers %c🩹 ${healAmount} 🩹%c health!`,
+];
 
 // ~~~~~ TRACKER ~~~~~ //
 /*
@@ -33,72 +63,6 @@ let trainers = [];
 let tracker = "";
 let nav = 0;
 let navPokemon = 0;
-
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-function logo() {
-  console.log(
-    "                                                      ==                                            "
-  );
-  console.log(
-    "                                                    =##**                                           "
-  );
-  console.log(
-    "                                                  :##*:=**.                                         "
-  );
-  console.log(
-    "                                      :.--       +#*-:-+**-                                         "
-  );
-  console.log(
-    "         .:+**##***:            .=#####%###=   -##*+##+.    :*************                          "
-  );
-  console.log(
-    "     -**#**=======+*##=     :%##*+=--+##*-=*#= :%##****##*:*%**====**::-**.    -%#****+=:.          "
-  );
-  console.log(
-    "  -*#*=-::::::::::::==*#.   :%##*+:::=#+:::-=*##*=:::::-=+*#%*-:::-*+:::=*-    -%#*-====+*%#***=:.  "
-  );
-  console.log(
-    ":%%#*:::::::::::::::::=**   .##%#*:::=-:::::=#*-::+**#+::=*##*::::-==:::=*=   .-#%#*::::=***+===+**."
-  );
-  console.log(
-    " :%%#*-:::::::-****+::=** .:=**%#*::::::::=#*#=::*=.*=:-**#%**:::::-::::=*****+++***-:::-+**-:::+*: "
-  );
-  console.log(
-    "  :###***=:::::=*:+*::=###*=====*#=:::::-**::#=::=**:-*#+=**#=::::::::::-**-=*=::-=+*-:::=*+:::=*+  "
-  );
-  console.log(
-    "   .**###*-::::-***=:-*#=:=#-::--=#+::::===**#*-::::--::::-=**=:-=:::::-*+:=*#=-=*:=**:::=*-::-**.  "
-  );
-  console.log(
-    "     ..#%#*:::::==::+##=:-*#*++*--+*::=:::::-=**=:::::::-+***:::=*=:-*:+*-:-=*##*-:-**:=:-=:::=*-   "
-  );
-  console.log(
-    "       :%%#*:::::-*###*::-=+***-:-**:-*##*=:::==*########%%*=:::=**=+*-+*-:::--:::-+*:=+:::::-**    "
-  );
-  console.log(
-    "        -%%#*::::=*#%##-:::::::::+#=:-*#%%##**-::--+**-..%%***+=*##***==**=::::::=**-:=+:::::+*.    "
-  );
-  console.log(
-    "         =%%#=:::-+*%%#*-::::::=*#*::-*# :+%%%##*=-+#.  :+*#%%%%#%%#%**:==********+::-**::::=*+     "
-  );
-  console.log(
-    "          *%##=:::=###%%##***###%%#***##.    :*%%%#*#.           .:+%#*******=:*%**=-=**:::-**      "
-  );
-  console.log(
-    "           %%##-::-=#: =#%%%#= .%%%#**=          -*%#.             .:=+*%%%%#: *%%%%##**:::+*-      "
-  );
-  console.log(
-    "           .%%#*--=*##                                                              -%#**+=*+       "
-  );
-  console.log(
-    "            :%%####*=                                                               .=*%%%#*.       "
-  );
-  console.log(
-    "             ==.                                                                                    "
-  );
-}
 
 function typeOfPokemon(key) {
   let type = "";
@@ -244,19 +208,19 @@ class PokemonGame {
 
     // Checks whether input isn't a number, less than 3, or greater than 5
     while (
-      !Number.isInteger(Number(noOfPlayers)) ||
-      noOfPlayers < 3 ||
-      noOfPlayers > 5
+      !Number.isInteger(Number(noOfTrainers)) ||
+      noOfTrainers < 3 ||
+      noOfTrainers > 5
     ) {
-      noOfPlayers = prompt(
+      noOfTrainers = prompt(
         `${
           firstTime
             ? "" // Fix for first time use
-            : !Number.isInteger(Number(noOfPlayers))
+            : !Number.isInteger(Number(noOfTrainers))
             ? "Input isn't an integer!\n\n"
-            : noOfPlayers < 3
+            : noOfTrainers < 3
             ? "Minimum players of 3!\n\n"
-            : noOfPlayers > 5
+            : noOfTrainers > 5
             ? "Maximum players of 5!\n\n"
             : ""
         }Set no. of players in game`
@@ -279,11 +243,11 @@ class PokemonGame {
           firstTime
             ? "" // Fix for first time use
             : !Number.isInteger(Number(noOfPokemons))
-            ? "Input isn't an integer!\n"
+            ? "Input isn't an integer!\n\n"
             : noOfPokemons < 1
-            ? "Minimum players of 1!\n"
+            ? "Minimum pokemons of 1!\n\n"
             : noOfPokemons > 5
-            ? "Maximum players of 5!\n"
+            ? "Maximum pokemons of 5!\n\n"
             : ""
         }Set no. of pokemons per player`
       );
@@ -294,7 +258,7 @@ class PokemonGame {
 
   // Trainer settings
   setTrainer() {
-    for (let i = 0; i < noOfPlayers; i++) {
+    for (let i = 0; i < noOfTrainers; i++) {
       // Variables
       let trainerFT = true;
       let inputPokemons = [];
@@ -333,7 +297,8 @@ class PokemonGame {
               : ""
           }Select ${noOfPokemons} pokemons for Trainer 1\ne.g. 1,2,3\n\n1. Normal\n2. Fire\n3. Water\n4. Grass\n5. Electric\n6. Ice\n7. Fighting\n8. Poison\n9. Ground\n10. Flying\n11. Psychic\n12. Bug\n13. Rock\n14. Ghost\n15. Dragon\n16. Dark\n17. Steel\n18. Fairy\n`
         );
-        inputPokemons = selectPokemons.split(",");
+
+        if (selectPokemons != null) inputPokemons = selectPokemons.split(",");
 
         selectPokemonFT = false;
       }
@@ -377,28 +342,28 @@ class PokemonGame {
 
     console.log(
       "%cPokemon Tournament Battle",
-      "color: #FFCB05; font-weight: bold; font-size: 64px;"
+      "color: #FFCB05; font-weight: bold; font-size: 4rem;"
     );
 
     console.log("");
 
     console.log(
       `%c${nav == 0 ? "> Start Battle <" : "Start Battle"}`,
-      `padding: 4px 16px; color: ${
+      `padding: 0.25rem 16px; color: ${
         nav == 0 ? "#FFCB05" : "#C7A008"
-      }; font-weight: bold; font-size: 16px;`
+      }; font-weight: bold; font-size: 1.5rem;`
     );
     console.log(
       `%c${nav == 1 ? "> Trainers <" : "Trainers"}`,
-      `padding: 4px 16px; color: ${
+      `padding: 0.25rem 16px; color: ${
         nav == 1 ? "#FFCB05" : "#C7A008"
-      }; font-weight: bold; font-size: 16px;`
+      }; font-weight: bold; font-size: 1.5rem;`
     );
     console.log(
       `%c${nav == 2 ? "> Quit <" : "Quit"}`,
-      `padding: 4px 16px; color: ${
+      `padding: 0.25rem 16px; color: ${
         nav == 2 ? "#FFCB05" : "#C7A008"
-      }; font-weight: bold; font-size: 16px;`
+      }; font-weight: bold; font-size: 1.5rem;`
     );
 
     console.log("");
@@ -421,7 +386,7 @@ class Trainer {
 
     console.log(
       `%cTrainer ${this.trainer}`,
-      `color: #FFCB05; font-weight: bold; font-size: 48px`
+      `color: #FFCB05; font-weight: bold; font-size: 3rem`
     );
 
     console.log("");
@@ -441,17 +406,17 @@ class Trainer {
     );
     console.log(
       `%c📈 Level: ${pokemon.level} [${pokemon.experience}/${
-        pokemon.level * 5
+        pokemon.level * 10
       }]`,
-      `padding: 4px 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
+      `padding: 0.25rem 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
     );
     console.log(
       `%c👾 Name: ${pokemon.name}`,
-      `padding: 4px 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
+      `padding: 0.25rem 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
     );
     console.log(
       `%c❤️ Health: ${pokemon.health}/${pokemon.maxHealth}`,
-      `padding: 4px 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
+      `padding: 0.25rem 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
     );
 
     console.log("");
@@ -463,11 +428,11 @@ class Trainer {
     );
     console.log(
       `%c🥉 Skill 1: ${pokemon.weakSkill}`,
-      `padding: 4px 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
+      `padding: 0.25rem 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
     );
     console.log(
       `%c🥇 Skill 2: ${pokemon.strongSkill}`,
-      `padding: 4px 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
+      `padding: 0.25rem 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
     );
 
     console.log("");
@@ -479,7 +444,6 @@ class Trainer {
   }
 }
 
-// #region POKEMON
 // ~~~~~~~~~~ POKEMON ~~~~~~~~~~ //
 class Pokemon {
   constructor(
@@ -502,9 +466,178 @@ class Pokemon {
     this.strongSkill = strongSkill;
   }
 
-  revivePokemon() {}
+  // Damage
+  receiveDamage(opponentColor, opponent, damage) {
+    const newHealth = opponent.health - damage;
+    opponent.health = newHealth;
+
+    if (newHealth > 0)
+      console.log(
+        `%c[POKEMON]%c ${opponent.name} ~${opponent.type}~ remaining health is %c${newHealth}%c`,
+        `color: ${opponentColor}; font-size: 1rem; font-weight: bold`,
+        `font-size: 1rem; font-weight: normal`,
+        `font-size: 1.25rem; font-weight: bold`,
+        `font-size: 1rem; font-weight: normal`
+      );
+    else
+      console.log(
+        `%c[POKEMON]%c ${opponent.name} ~${opponent.type}~ fainted!`,
+        `color: ${opponentColor}; font-size: 1rem; font-weight: bold`,
+        `font-size: 1rem; font-weight: normal`
+      );
+  }
+  calculateDamage(
+    fighterColor,
+    fighter,
+    opponentColor,
+    opponent,
+    skill,
+    damage
+  ) {
+    const healthRatio = this.health / this.maxHealth;
+    const critChance = 1 - healthRatio;
+    const isCriticalHit = Math.random() < critChance;
+
+    const newDamage = damage + (this.level - 1);
+    const damageMultiplier = isCriticalHit ? 1.5 : 0;
+
+    const damageDealt = Math.round(damage * damageMultiplier) + newDamage;
+
+    console.log(
+      `${
+        pokemonTurnDialogues(
+          fighter,
+          { name: this.name, type: this.type },
+          skill,
+          damageDealt,
+          isCriticalHit
+        )[Math.floor(Math.random() * 3)]
+      }`,
+      `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+      `font-size: 1rem; font-weight: normal`,
+      `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+      `font-size: 1rem; font-weight: normal`,
+      `font-size: 1.25rem; font-weight: bold`,
+      `font-size: 1rem; font-weight: normal`,
+      `font-size: 1.25rem; font-weight: bold`,
+      `font-size: 1rem; font-weight: normal`,
+      `${isCriticalHit ? `font-size: 1.25rem; font-weight: bold` : ``}`
+    );
+    this.receiveDamage(opponentColor, opponent, damageDealt);
+  }
+  heal(fighterColor, fighter) {
+    const healthRatio = this.health / this.maxHealth;
+    const moreHealthChance = 1 - healthRatio;
+    const isMoreHealth = Math.random() < moreHealthChance;
+
+    const defaultHeal = 2;
+    const newHeal = defaultHeal + (this.level - 1);
+    const healMultiplier = isMoreHealth ? 2 : 0;
+
+    const totalHealing = Math.round(defaultHeal * healMultiplier) + newHeal;
+    this.health =
+      this.health + totalHealing > this.maxHealth
+        ? this.maxHealth
+        : this.health + totalHealing;
+
+    console.log(
+      `${
+        pokemonHealDialogues(fighter, this.name, totalHealing)[
+          Math.floor(Math.random() * 2)
+        ]
+      }`,
+      `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+      `font-size: 1rem; font-weight: normal`,
+      `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+      `font-size: 1rem; font-weight: normal`,
+      `font-size: 1.25rem; font-weight: bold`,
+      `font-size: 1rem; font-weight: normal`
+    );
+
+    if (this.health + totalHealing > this.maxHealth) {
+      console.log(
+        `%c[TRAINER]%c ${fighter.trainer} %c[POKEMON]%c max health reached!`,
+        `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+        `font-size: 1rem; font-weight: normal`,
+        `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+        `font-size: 1rem; font-weight: normal`
+      );
+    }
+
+    console.log(
+      `%c[TRAINER]%c ${fighter.trainer} %c[POKEMON]%c ${this.name} new health is %c${this.health}%c!`,
+      `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+      `font-size: 1rem; font-weight: normal`,
+      `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+      `font-size: 1rem; font-weight: normal`,
+      `font-size: 1.25rem; font-weight: bold`,
+      `font-size: 1rem; font-weight: normal`
+    );
+  }
+
+  // Pokemon Stats Changes
+  resetLevel() {
+    this.level = 1;
+    this.experience = 0;
+    this.maxHealth = 10;
+  }
+  revivePokemon() {
+    if (this.health <= 0) this.experience = 0;
+    this.health = this.maxHealth;
+  }
+  powerUp(fighterColor) {
+    this.experience += 5;
+    this.health += 5;
+
+    if (this.experience == this.level * 10) {
+      this.experience = 0;
+      this.level += 1;
+      this.maxHealth += 10;
+      this.health += this.level * 5;
+
+      if (this.health > this.maxHealth) {
+        this.health = this.maxHealth;
+      }
+
+      console.log("");
+      console.log(
+        `%c[POKEMON]%c\n${this.name} powered up!\n📈 Level: ${this.level} (${
+          this.experience
+        }/${this.level * 10})\n❤️ HP: ${this.health}/${this.maxHealth}`,
+        `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+        `font-size: 1rem; font-weight: normal`
+      );
+    } else {
+      this.health += this.level * 2;
+    }
+  }
+
+  // Skills
+  skill1(fighterColor, fighter, opponentColor, opponent) {
+    // this.attack();
+    this.calculateDamage(
+      fighterColor,
+      fighter,
+      opponentColor,
+      opponent,
+      this.weakSkill,
+      2
+    );
+  }
+  skill2(fighterColor, fighter, opponentColor, opponent) {
+    // this.attack();
+    this.calculateDamage(
+      fighterColor,
+      fighter,
+      opponentColor,
+      opponent,
+      this.strongSkill,
+      3
+    );
+  }
 }
 
+// #region TYPES OF POKEMON
 // ~~~~~ TYPES OF POKEMON ~~~~~ //
 class NormalPokemon extends Pokemon {
   constructor(name) {
@@ -596,21 +729,511 @@ class FairyPokemon extends Pokemon {
     super(name, "🧚 Fairy", 0, 1, 10, 10, "Fairy Wind", "Moonblast");
   }
 }
-// #endregion POKEMON
+// #endregion TYPES OF POKEMON
 
+// ~~~~~~~~~~ BATTLE ~~~~~~~~~~ //
+/*
+  GAME RULES:
+  [1] EACH MATCH, ALL POKEMONS ARE REVIVED BUT THE REVIVE ONES WILL RESET THEIR EXP TO 0 AND THE LEVEL WILL REMAIN THE SAME.
+
+  BRACKETING RULES:
+  [1] IF 5, THE ONE THAT DOESN'T HAVE ENEMY WILL FIGHT WINNER OF LOSERS BRACKET
+    [1.1] LOSER'S BRACKET WON'T BE ABLE TO POWER-UP
+    [1.2] WINNER OF LOSER'S BRACKET WILL RESET ALL POKEMON'S HP FOR FAIR FIGHT 
+    [1.3] LOSER'S BRACKET WINNER WILL FIGHT THE ONE WITHOUT AN EMENY AND THEIR POKEMON WILL BE ABLE TO POWER-UP NOW.
+
+  ROUND-ROBIN RULES:
+  [1] THREE TRAINERS IN WINNER'S BRACKET
+  [2] ALL POKEMONS WILL REVIVE EACH MATCH
+  [3] NO POWERUP FOR POKEMONS
+*/
 class Battle {
-  async bracketFight(players) {
+  constructor() {
+    this.winnersBracket = [];
+    this.losersBracket = [];
+    this.losersFight = false;
+    this.leaderboard = [];
+    this.scoreboard = {};
+
     while (true) {
-      while (true) {}
+      if (this.winnersBracket.length == 3 || noOfTrainers == 3) {
+        this.winnersBracket.concat(trainers);
+        this.winnersBracket.forEach((trainer) =>
+          trainer.pokemons.sort((a, b) => a.level - b.level).reverse()
+        );
+        this.rrFight();
+
+        break;
+      } else if (noOfTrainers > 3) {
+        console.log(
+          `%cBRACKET FIGHT`,
+          `color: #FFCB05; font-weight: bold; font-size: 4rem;`
+        );
+
+        this.randomPlayer();
+        this.bracketFight();
+      }
     }
+  }
+
+  // Scoreboard
+  updateScoreboard(match, scoreboard) {
+    match.forEach((participant) => {
+      const { trainer, isWinner, pokemons } = participant;
+      if (!scoreboard[trainer]) {
+        scoreboard[trainer] = {
+          wins: 0,
+          pokemonsLeft: 0,
+          pokemonsHealth: 0,
+          score: 0,
+        };
+      }
+
+      // Update the number of wins
+      scoreboard[trainer].wins += isWinner ? 1 : 0;
+
+      // Update the number of Pokémon left
+      scoreboard[trainer].pokemonsLeft += pokemons.length;
+
+      // Update the highest health of Pokémon
+      pokemons.forEach((pokemon) => {
+        scoreboard[trainer].pokemonsHealth += pokemon.health;
+      });
+
+      scoreboard[trainer].score +=
+        scoreboard[trainer].wins * 50 +
+        scoreboard[trainer].pokemonsLeft * 5 +
+        scoreboard[trainer].pokemonsHealth;
+    });
+  }
+  showScoreboard() {
+    console.clear();
+
+    console.log(
+      `%cScoreboard`,
+      `color: #3466AF; font-weight: bold; font-size: 4rem;`
+    );
+    console.log("");
+
+    for (let trainer in this.scoreboard) {
+      if (this.scoreboard.hasOwnProperty(trainer)) {
+        let result = this.scoreboard[trainer];
+        console.log(
+          `%c${trainer}`,
+          `color: #3466AF; font-weight: bold; font-size: 2rem;`
+        );
+        console.log(
+          `%cWins: %c${result.wins}`,
+          `margin-left: 2.5rem; color: #3466AF; font-size: 1rem;`,
+          `color: #3466AF; font-weight: bold; font-size: 1.25rem;`
+        );
+        console.log(
+          `%cTotal Pokémons Left: %c${result.pokemonsLeft}`,
+          `margin-left: 2.5rem; color: #3466AF; font-size: 1rem;`,
+          `color: #3466AF; font-weight: bold; font-size: 1.25rem;`
+        );
+        console.log(
+          `%cTotal Pokémons Health: %c${result.pokemonsHealth}`,
+          `margin-left: 2.5rem; color: #3466AF; font-size: 1rem;`,
+          `color: #3466AF; font-weight: bold; font-size: 1.25rem;`
+        );
+        console.log(
+          `%cTotal Score: %c${result.score}`,
+          `margin-left: 2.5rem; color: #3466AF; font-size: 1rem;`,
+          `color: #3466AF; font-weight: bold; font-size: 1.25rem;`
+        );
+      }
+
+      console.log("");
+    }
+  }
+
+  // Player methods
+  randomPlayer() {
+    // Select current players to play
+    this.player1 = trainers[Math.floor(Math.random() * trainers.length)];
+    trainers.splice(trainers.indexOf(this.player1), 1);
+
+    this.player2 = trainers[Math.floor(Math.random() * (trainers.length - 1))];
+    trainers.splice(trainers.indexOf(this.player2), 1);
+
+    // Logo
+    console.log(
+      `%c${this.player1.trainer} vs ${this.player2.trainer}`,
+      `color: #FFCB05; font-weight: bold; font-size: 3rem; padding: 0.25rem 1rem;`
+    );
+  }
+
+  // Pokemon methods
+  rngMove(randomness) {
+    let move;
+    let moveChance = Math.random() * randomness;
+
+    if (moveChance < 0.6) move = 0;
+    else if (moveChance < 0.75) move = 1;
+    else move = 2;
+
+    return move;
+  }
+  pokemonMove(
+    fighterPlayer,
+    fighterColor,
+    fighterPokemon,
+    opponentColor,
+    opponentPokemon
+  ) {
+    // Move chances
+    let move = this.rngMove(3);
+
+    // Move
+    switch (move) {
+      case 0: // Skill 1
+        fighterPokemon.skill1(
+          fighterColor,
+          fighterPlayer,
+          opponentColor,
+          opponentPokemon
+        );
+        break;
+      case 1: // Skill 2
+        fighterPokemon.skill2(
+          fighterColor,
+          fighterPlayer,
+          opponentColor,
+          opponentPokemon
+        );
+        break;
+      case 2: // Heal
+        if (fighterPokemon.health == fighterPokemon.maxHealth) {
+          move = this.rngMove(2);
+
+          switch (move) {
+            case 0: // Skill 1
+              fighterPokemon.skill1(
+                fighterColor,
+                fighterPlayer,
+                opponentColor,
+                opponentPokemon
+              );
+              break;
+            case 1: // Skill 2
+              fighterPokemon.skill2(
+                fighterColor,
+                fighterPlayer,
+                opponentColor,
+                opponentPokemon
+              );
+              break;
+          }
+        } else fighterPokemon.heal(fighterColor, fighterPlayer);
+        break;
+    }
+  }
+
+  // Battle fights
+  bracketFight() {
+    while (true) {
+      let players = [this.player1, this.player2];
+      let pokemons = [this.player1.pokemons.pop(), this.player2.pokemons.pop()];
+
+      players.forEach((player, index) => {
+        console.log(
+          `${
+            pokemonSelectDialogues(player, pokemons[index])[
+              Math.floor(Math.random() * 3)
+            ]
+          }`,
+          `color: ${colors[index]}; font-size: 1rem; font-weight: bold`,
+          `font-size: 1rem; font-weight: normal`,
+          `color: ${colors[index]}; font-size: 1rem; font-weight: bold`,
+          `font-size: 1rem; font-weight: normal`
+        );
+      });
+
+      while (true) {
+        console.log("");
+
+        // Setting of fighter and opponent
+        let [fighterPlayer, opponentPlayer] = [players[0], players[1]];
+        let [fighterPokemon, opponentPokemon] = [pokemons[0], pokemons[1]];
+        let [fighterColor, opponentColor] = [colors[0], colors[1]];
+
+        this.pokemonMove(
+          fighterPlayer,
+          fighterColor,
+          fighterPokemon,
+          opponentColor,
+          opponentPokemon
+        );
+
+        if (opponentPokemon.health <= 0) {
+          // Winner
+          console.log("");
+          console.log(
+            `%c[TRAINER]%c ${fighterPlayer.trainer}'s %c[POKEMON]%c ${fighterPokemon.name} wins the battle!`,
+            `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+            `font-size: 1rem; font-weight: normal`,
+            `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+            `font-size: 1rem; font-weight: normal`
+          );
+          fighterPokemon.powerUp(fighterColor);
+
+          // If there's no pokemon left from opponent
+          if (opponentPlayer.pokemons.every((pokemon) => pokemon.health <= 0)) {
+            if (this.losersFight) {
+              // Put the winner's pokemon to trainers
+              trainers.push(fighterPlayer);
+              fighterPlayer.pokemons.push(fighterPokemon);
+
+              trainers.push(...this.losersBracket);
+              this.losersBracket = [];
+              this.losersFight = false;
+            } else {
+              // Put the loser's pokemon to losersBracket
+              this.losersBracket.push(opponentPlayer);
+              pokemons.pop();
+              opponentPlayer.pokemons.unshift(opponentPokemon);
+              opponentPlayer.pokemons.forEach((pokemon) => {
+                pokemon.resetLevel();
+                pokemon.revivePokemon();
+              });
+
+              // Put the winner's pokemon to winnersBracket
+              this.winnersBracket.push(fighterPlayer);
+              fighterPlayer.pokemons.push(fighterPokemon);
+            }
+            break;
+          } else {
+            pokemons.pop();
+            opponentPlayer.pokemons.unshift(opponentPokemon);
+            pokemons.push(opponentPlayer.pokemons.pop());
+
+            console.log("");
+            console.log(
+              `${
+                pokemonSelectDialogues(
+                  opponentPlayer.trainer,
+                  opponentPokemon.name
+                )[Math.floor(Math.random() * 3)]
+              }`,
+              `color: ${opponentColor}; font-size: 1rem; font-weight: bold`,
+              `font-size: 1rem; font-weight: normal`,
+              `color: ${opponentColor}; font-size: 1rem; font-weight: bold`,
+              `font-size: 1rem; font-weight: normal`
+            );
+          }
+        }
+
+        // Reversing the fighter and opponent
+        colors.reverse();
+        players.reverse();
+        pokemons.reverse();
+      }
+
+      console.log("");
+      console.log("");
+      console.log("");
+      // console.log("~~~~~~~~~~~~~~~ GAME END ~~~~~~~~~~~~~~~");
+      // break;
+      if (trainers.length == 0 && this.winnersBracket.length == 1) {
+        console.log(
+          `%cTOURNAMENT WINNER: ${this.winnersBracket[0].name}`,
+          `color: #3466AF; font-weight: bold; font-size: 2rem;`
+        );
+
+        break;
+      } else if (trainers.length == 1 && this.losersBracket.length == 2) {
+        let save = [];
+        save.push(...trainers);
+
+        trainers = [];
+        trainers.push(...this.losersBracket);
+
+        this.losersBracket = [];
+        this.losersFight = true;
+        this.losersBracket.push(...save);
+        this.randomPlayer();
+      } else if (
+        this.winnersBracket.length == 2 &&
+        this.losersBracket.length == 2
+      ) {
+        trainers.push(...this.winnersBracket);
+        this.winnersBracket = [];
+      } else if (trainers.length > 1) this.randomPlayer();
+      else break;
+    }
+  }
+  rrFight() {
+    console.log(
+      `%cROUND ROBIN`,
+      `color: #FFCB05; font-weight: bold; font-size: 4rem;`
+    );
+    console.log("");
+
+    // Round-robin Battle
+    this.winnersBracket = this.winnersBracket.concat(trainers);
+    for (let i = 0; i < this.winnersBracket.length; i++) {
+      for (let j = i + 1; j < this.winnersBracket.length; j++) {
+        console.log(
+          `%c${this.winnersBracket[i].trainer} vs ${this.winnersBracket[j].trainer}`,
+          `color: #FFCB05; font-weight: bold; font-size: 3rem; padding: 0.25rem 1rem;`
+        );
+        console.log("");
+
+        let players = [this.winnersBracket[i], this.winnersBracket[j]];
+        let pokemons = [
+          this.winnersBracket[i].pokemons.pop(),
+          this.winnersBracket[j].pokemons.pop(),
+        ];
+
+        players.forEach((player, index) => {
+          console.log(
+            `${
+              pokemonSelectDialogues(player, pokemons[index])[
+                Math.floor(Math.random() * 3)
+              ]
+            }`,
+            `color: ${colors[index]}; font-size: 1rem; font-weight: bold`,
+            `font-size: 1rem; font-weight: normal`,
+            `color: ${colors[index]}; font-size: 1rem; font-weight: bold`,
+            `font-size: 1rem; font-weight: normal`
+          );
+        });
+
+        while (true) {
+          console.log("");
+
+          // Setting of fighter and opponent
+          let [fighterPlayer, opponentPlayer] = [players[0], players[1]];
+          let [fighterPokemon, opponentPokemon] = [pokemons[0], pokemons[1]];
+          let [fighterColor, opponentColor] = [colors[0], colors[1]];
+
+          this.pokemonMove(
+            fighterPlayer,
+            fighterColor,
+            fighterPokemon,
+            opponentColor,
+            opponentPokemon
+          );
+
+          if (opponentPokemon.health <= 0) {
+            // Winner
+            console.log("");
+            console.log(
+              `%c[TRAINER]%c ${fighterPlayer.trainer}'s %c[POKEMON]%c ${fighterPokemon.name} wins the battle!`,
+              `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+              `font-size: 1rem; font-weight: normal`,
+              `color: ${fighterColor}; font-size: 1rem; font-weight: bold`,
+              `font-size: 1rem; font-weight: normal`
+            );
+
+            // If there's no pokemon left from opponent
+            if (
+              opponentPlayer.pokemons.every((pokemon) => pokemon.health <= 0)
+            ) {
+              // Add details to leaderboard
+              fighterPlayer.pokemons.push(fighterPokemon);
+              this.leaderboard.push([
+                {
+                  trainer:
+                    this.winnersBracket[i] == fighterPlayer
+                      ? fighterPlayer.trainer
+                      : opponentPlayer.trainer,
+                  isWinner: this.winnersBracket[i] == fighterPlayer,
+                  pokemons:
+                    this.winnersBracket[i] == fighterPlayer
+                      ? fighterPlayer.pokemons.filter(
+                          (pokemon) => pokemon.health > 0
+                        )
+                      : opponentPlayer.pokemons.filter(
+                          (pokemon) => pokemon.health > 0
+                        ),
+                },
+                {
+                  trainer:
+                    this.winnersBracket[j] == fighterPlayer
+                      ? fighterPlayer.trainer
+                      : opponentPlayer.trainer,
+                  isWinner: this.winnersBracket[j] == fighterPlayer,
+                  pokemons:
+                    this.winnersBracket[j] == fighterPlayer
+                      ? fighterPlayer.pokemons.filter(
+                          (pokemon) => pokemon.health > 0
+                        )
+                      : opponentPlayer.pokemons.filter(
+                          (pokemon) => pokemon.health > 0
+                        ),
+                },
+              ]);
+
+              // Re-fix pokemon's position and revive them
+              pokemons.pop();
+              opponentPlayer.pokemons.unshift(opponentPokemon);
+              opponentPlayer.pokemons.forEach((pokemon) => {
+                pokemon.revivePokemon();
+              });
+
+              fighterPlayer.pokemons.forEach((pokemon) => {
+                pokemon.revivePokemon();
+              });
+
+              break;
+            } else {
+              pokemons.pop();
+              opponentPlayer.pokemons.unshift(opponentPokemon);
+              pokemons.push(opponentPlayer.pokemons.pop());
+
+              console.log("");
+              console.log(
+                `${
+                  pokemonSelectDialogues(
+                    opponentPlayer.trainer,
+                    opponentPokemon.name
+                  )[Math.floor(Math.random() * 3)]
+                }`,
+                `color: ${opponentColor}; font-size: 1rem; font-weight: bold`,
+                `font-size: 1rem; font-weight: normal`,
+                `color: ${opponentColor}; font-size: 1rem; font-weight: bold`,
+                `font-size: 1rem; font-weight: normal`
+              );
+            }
+          }
+
+          // Reversing the fighter and opponent
+          colors.reverse();
+          players.reverse();
+          pokemons.reverse();
+        }
+
+        console.log("");
+      }
+    }
+
+    nav = 0;
+
+    let scoreboard = {};
+    this.leaderboard.forEach((match) =>
+      this.updateScoreboard(match, scoreboard)
+    );
+
+    let unsortedScoreboard = Object.entries(scoreboard);
+    unsortedScoreboard.sort((a, b) => b[1].score - a[1].score);
+    this.scoreboard = Object.fromEntries(unsortedScoreboard);
+
+    console.log("");
+    console.log("");
+    console.log(
+      "%cpress ↵ Enter to show Score Board",
+      "background: #222; color: #bada55;"
+    );
   }
 }
 
 document.addEventListener("keydown", function (event) {
   // console.log("Key pressed:", event.key);
 
+  key = event.key;
   if (tracker == "Menu Selection") {
-    key = event.key;
     if (key == "ArrowUp" || key == "ArrowDown") {
       switch (key) {
         case "ArrowUp":
@@ -626,49 +1249,83 @@ document.addEventListener("keydown", function (event) {
       switch (nav) {
         case 0:
           tracker = "Start Battle";
+          nav = -1;
+
+          console.clear();
+          battle = new Battle();
           break;
         case 1:
           tracker = "Trainers";
-
           trainers[nav].showPokemons();
+          nav = 0;
+
           break;
         case 2:
           tracker = "Quit";
           break;
       }
-
-      nav = 0;
     }
   } else if (tracker == "Start Battle") {
-  } else if (tracker == "Trainers") {
-    switch (event.key) {
-      case "ArrowUp":
-        nav = nav == 0 ? 0 : nav - 1;
-        navPokemon = 0;
-        break;
-      case "ArrowDown":
-        nav = nav == noOfPlayers - 1 ? noOfPlayers - 1 : nav + 1;
-        navPokemon = 0;
-        break;
-      case "ArrowLeft":
-        navPokemon = navPokemon == 0 ? 0 : navPokemon - 1;
-        break;
-      case "ArrowRight":
-        navPokemon =
-          navPokemon == noOfPokemons - 1 ? noOfPokemons - 1 : navPokemon + 1;
-        break;
-      case "B":
-      case "b":
-        tracker = "Menu Selection";
-        nav = 0;
-        navPokemon = 0;
-        pokemonGame.menu();
-        break;
+    if (key == "Enter" && nav == 0) {
+      battle.showScoreboard();
     }
+  } else if (tracker == "Trainers") {
+    if (
+      key == "ArrowUp" ||
+      key == "ArrowDown" ||
+      key == "ArrowLeft" ||
+      key == "ArrowRight"
+    ) {
+      switch (event.key) {
+        case "ArrowUp":
+          nav = nav == 0 ? 0 : nav - 1;
+          navPokemon = 0;
+          break;
+        case "ArrowDown":
+          nav = nav == noOfTrainers - 1 ? noOfTrainers - 1 : nav + 1;
+          navPokemon = 0;
+          break;
+        case "ArrowLeft":
+          navPokemon = navPokemon == 0 ? 0 : navPokemon - 1;
+          break;
+        case "ArrowRight":
+          navPokemon =
+            navPokemon == noOfPokemons - 1 ? noOfPokemons - 1 : navPokemon + 1;
+          break;
+      }
 
-    trainers[nav].showPokemons();
-  } else if (tracker == "Quit") {
+      trainers[nav].showPokemons();
+    } else if (key == "B" || key == "b") {
+      tracker = "Menu Selection";
+      nav = 0;
+      navPokemon = 0;
+
+      pokemonGame.menu();
+    }
   }
 });
 
 const pokemonGame = new PokemonGame();
+// trainers = [
+//   new Trainer("Trainer 1", [
+//     new NormalPokemon("Normal 1"),
+//     new FirePokemon("Fire 1"),
+//   ]),
+//   new Trainer("Trainer 2", [
+//     new IcePokemon("Ice 1"),
+//     new FightingPokemon("Fighting 1"),
+//   ]),
+//   new Trainer("Trainer 3", [
+//     new PsychicPokemon("Psychic 1"),
+//     new BugPokemon("Bug 1"),
+//   ]),
+//   new Trainer("Trainer 4", [
+//     new DragonPokemon("Dragon 1"),
+//     new FairyPokemon("Fairy 1"),
+//   ]),
+//   new Trainer("Trainer 5", [
+//     new SteelPokemon("Steel 1"),
+//     new WaterPokemon("Water 1"),
+//   ]),
+// ];
+let battle;
