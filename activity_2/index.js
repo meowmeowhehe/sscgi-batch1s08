@@ -58,7 +58,6 @@ let pokemonHealDialogues = (fighter, pokemon, healAmount) => [
   - MENU SELECTION
     - START BATTLE
     - TRAINERS
-    - QUIT
 */
 let tracker = "";
 let nav = 0;
@@ -271,36 +270,43 @@ class PokemonGame {
           `${
             trainerFT
               ? ""
-              : trainer != null && trainer.trim() != ""
+              : trainer == null
               ? "Name of Trainer can't be empty!\n\n"
               : ""
           }Name of Trainer #${i + 1}`
         );
 
         trainerFT = false;
-        if (trainer != null) if (trainer.trim() != "") break;
+        if (trainer != null) {
+          trainer.trim();
+          break;
+        }
       }
 
       // Picking of Pokemons
       let selectPokemonFT = true;
       while (
         inputPokemons.length != noOfPokemons ||
-        inputPokemons.every((input) => !Number.isInteger(Number(input))) ||
+        !inputPokemons.every((input) => Number.isInteger(Number(input))) ||
         !inputPokemons.every((input) => input >= 1 && input <= 18)
       ) {
         let selectPokemons = prompt(
           `${
             selectPokemonFT
               ? ""
-              : inputPokemons.every((pokemon) => !pokemon)
-              ? "Failed to follow instructions!\n\n"
+              : inputPokemons.length != noOfPokemons
+              ? `The pokemons you selected aren't ${noOfPokemons} pokemon(s)!\n\n`
+              : !inputPokemons.every((input) =>
+                  Number.isInteger(Number(input))
+                ) || !inputPokemons.every((input) => input >= 1 && input <= 18)
+              ? `Some of the pokemons are not on the list!\n\n`
               : ""
           }Select ${noOfPokemons} pokemons for Trainer 1\ne.g. 1,2,3\n\n1. Normal\n2. Fire\n3. Water\n4. Grass\n5. Electric\n6. Ice\n7. Fighting\n8. Poison\n9. Ground\n10. Flying\n11. Psychic\n12. Bug\n13. Rock\n14. Ghost\n15. Dragon\n16. Dark\n17. Steel\n18. Fairy\n`
         );
 
-        if (selectPokemons != null) inputPokemons = selectPokemons.split(",");
-
         selectPokemonFT = false;
+        if (selectPokemons != null)
+          inputPokemons = selectPokemons.replace(/\s+/g, "").split(",");
       }
 
       // Setting names for pokemons
@@ -315,14 +321,17 @@ class PokemonGame {
             `${
               pokemonNameFT
                 ? ""
-                : pokemonName != null || pokemonName.trim() != ""
+                : pokemonName == null
                 ? "Name of Pokemon can't be empty!\n\n"
                 : ""
             }Name of Pokemon #${index + 1} (${typeOfPokemon(input)})`
           );
 
           pokemonNameFT = false;
-          if (pokemonName != null) if (pokemonName.trim() != "") break;
+          if (pokemonName != null) {
+            trainer.trim();
+            break;
+          }
         }
 
         pokemons.push(newPokemon(input, pokemonName));
@@ -349,20 +358,14 @@ class PokemonGame {
 
     console.log(
       `%c${nav == 0 ? "> Start Battle <" : "Start Battle"}`,
-      `padding: 0.25rem 16px; color: ${
+      `padding: 0.25rem 1rem; color: ${
         nav == 0 ? "#FFCB05" : "#C7A008"
       }; font-weight: bold; font-size: 1.5rem;`
     );
     console.log(
       `%c${nav == 1 ? "> Trainers <" : "Trainers"}`,
-      `padding: 0.25rem 16px; color: ${
+      `padding: 0.25rem 1rem; color: ${
         nav == 1 ? "#FFCB05" : "#C7A008"
-      }; font-weight: bold; font-size: 1.5rem;`
-    );
-    console.log(
-      `%c${nav == 2 ? "> Quit <" : "Quit"}`,
-      `padding: 0.25rem 16px; color: ${
-        nav == 2 ? "#FFCB05" : "#C7A008"
       }; font-weight: bold; font-size: 1.5rem;`
     );
 
@@ -385,15 +388,16 @@ class Trainer {
     console.clear();
 
     console.log(
-      `%cTrainer ${this.trainer}`,
-      `color: #FFCB05; font-weight: bold; font-size: 3rem`
+      `%c[Trainer] %c${this.trainer}`,
+      `color: #FFCB05; font-weight: bold; font-size: 3rem`,
+      `font-weight: bold; font-size: 3rem`
     );
 
     console.log("");
 
     console.log(
       `%cPokemon #${navPokemon + 1}`,
-      `color: #FFCB05; font-weight: bold; font-size: 32px`
+      `color: #FFCB05; font-weight: bold; font-size: 2rem`
     );
 
     console.log("");
@@ -402,21 +406,24 @@ class Trainer {
     let pokemon = this.pokemons[navPokemon];
     console.log(
       `%c${pokemon.type}`,
-      `color: #FFCB05; font-weight: bold; font-size: 32px`
+      `color: #FFCB05; font-weight: bold; font-size: 2rem`
     );
     console.log(
-      `%c📈 Level: ${pokemon.level} [${pokemon.experience}/${
+      `%c📈 Level: %c${pokemon.level} [${pokemon.experience}/${
         pokemon.level * 10
       }]`,
-      `padding: 0.25rem 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
+      `margin-left: 2.5rem; color: #FFCB05; font-weight: bold; font-size: 1rem`,
+      `font-weight: bold; font-size: 1.25rem`
     );
     console.log(
-      `%c👾 Name: ${pokemon.name}`,
-      `padding: 0.25rem 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
+      `%c👾 Name: %c${pokemon.name}`,
+      `margin-left: 2.5rem; color: #FFCB05; font-weight: bold; font-size: 1rem`,
+      `font-weight: bold; font-size: 1.25rem`
     );
     console.log(
-      `%c❤️ Health: ${pokemon.health}/${pokemon.maxHealth}`,
-      `padding: 0.25rem 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
+      `%c❤️ Health: %c${pokemon.health}/${pokemon.maxHealth}`,
+      `margin-left: 2.5rem; color: #FFCB05; font-weight: bold; font-size: 1rem`,
+      `font-weight: bold; font-size: 1.25rem`
     );
 
     console.log("");
@@ -424,15 +431,17 @@ class Trainer {
     // Skills
     console.log(
       `%c🛠️ Skills`,
-      `color: #FFCB05; font-weight: bold; font-size: 32px`
+      `color: #FFCB05; font-weight: bold; font-size: 2rem`
     );
     console.log(
-      `%c🥉 Skill 1: ${pokemon.weakSkill}`,
-      `padding: 0.25rem 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
+      `%c🥉 Skill 1: %c${pokemon.weakSkill}`,
+      `margin-left: 2.5rem; color: #FFCB05; font-weight: bold; font-size: 1rem`,
+      `font-weight: bold; font-size: 1.25rem`
     );
     console.log(
-      `%c🥇 Skill 2: ${pokemon.strongSkill}`,
-      `padding: 0.25rem 16px;color: #FFCB05; font-weight: bold; font-size: 16px`
+      `%c🥇 Skill 2: %c${pokemon.strongSkill}`,
+      `margin-left: 2.5rem; color: #FFCB05; font-weight: bold; font-size: 1rem`,
+      `font-weight: bold; font-size: 1.25rem`
     );
 
     console.log("");
@@ -811,7 +820,7 @@ class Battle {
 
     console.log(
       `%cScoreboard`,
-      `color: #3466AF; font-weight: bold; font-size: 4rem;`
+      `color: #FFCB05; font-weight: bold; font-size: 4rem;`
     );
     console.log("");
 
@@ -819,28 +828,29 @@ class Battle {
       if (this.scoreboard.hasOwnProperty(trainer)) {
         let result = this.scoreboard[trainer];
         console.log(
-          `%c${trainer}`,
-          `color: #3466AF; font-weight: bold; font-size: 2rem;`
+          `%c[Trainer] %c${trainer}`,
+          `color: #FFCB05; font-weight: bold; font-size: 2rem;`,
+          `font-weight: bold; font-size: 2rem;`
         );
         console.log(
           `%cWins: %c${result.wins}`,
-          `margin-left: 2.5rem; color: #3466AF; font-size: 1rem;`,
-          `color: #3466AF; font-weight: bold; font-size: 1.25rem;`
+          `margin-left: 2.5rem; color: #FFCB05; font-weight: bold; font-size: 1rem;`,
+          `font-weight: bold; font-size: 1.25rem;`
         );
         console.log(
           `%cTotal Pokémons Left: %c${result.pokemonsLeft}`,
-          `margin-left: 2.5rem; color: #3466AF; font-size: 1rem;`,
-          `color: #3466AF; font-weight: bold; font-size: 1.25rem;`
+          `margin-left: 2.5rem; color: #FFCB05; font-weight: bold; font-size: 1rem;`,
+          `font-weight: bold; font-size: 1.25rem;`
         );
         console.log(
           `%cTotal Pokémons Health: %c${result.pokemonsHealth}`,
-          `margin-left: 2.5rem; color: #3466AF; font-size: 1rem;`,
-          `color: #3466AF; font-weight: bold; font-size: 1.25rem;`
+          `margin-left: 2.5rem; color: #FFCB05; font-weight: bold; font-size: 1rem;`,
+          `font-weight: bold; font-size: 1.25rem;`
         );
         console.log(
           `%cTotal Score: %c${result.score}`,
-          `margin-left: 2.5rem; color: #3466AF; font-size: 1rem;`,
-          `color: #3466AF; font-weight: bold; font-size: 1.25rem;`
+          `margin-left: 2.5rem; color: #FFCB05; font-weight: bold; font-size: 1rem;`,
+          `font-weight: bold; font-size: 1.25rem;`
         );
       }
 
@@ -1241,7 +1251,7 @@ document.addEventListener("keydown", function (event) {
           nav = nav == 0 ? 0 : nav - 1;
           break;
         case "ArrowDown":
-          nav = nav == 2 ? 2 : nav + 1;
+          nav = nav == 1 ? 1 : nav + 1;
           break;
       }
 
@@ -1256,13 +1266,11 @@ document.addEventListener("keydown", function (event) {
           battle = new Battle();
           break;
         case 1:
+          nav = 0;
+          navPokemon = 0;
           tracker = "Trainers";
           trainers[nav].showPokemons();
-          nav = 0;
 
-          break;
-        case 2:
-          tracker = "Quit";
           break;
       }
     }
@@ -1323,13 +1331,13 @@ const pokemonGame = new PokemonGame();
 //     new PsychicPokemon("Psychic 1"),
 //     new BugPokemon("Bug 1"),
 //   ]),
-//   new Trainer("Trainer 4", [
-//     new DragonPokemon("Dragon 1"),
-//     new FairyPokemon("Fairy 1"),
-//   ]),
-//   new Trainer("Trainer 5", [
-//     new SteelPokemon("Steel 1"),
-//     new WaterPokemon("Water 1"),
-//   ]),
+//   // new Trainer("Trainer 4", [
+//   //   new DragonPokemon("Dragon 1"),
+//   //   new FairyPokemon("Fairy 1"),
+//   // ]),
+//   // new Trainer("Trainer 5", [
+//   //   new SteelPokemon("Steel 1"),
+//   //   new WaterPokemon("Water 1"),
+//   // ]),
 // ];
 let battle;
