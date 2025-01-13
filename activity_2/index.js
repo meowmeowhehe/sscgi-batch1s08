@@ -764,7 +764,7 @@ class Battle {
         this.rrFight();
 
         break;
-      } else if (noOfTrainers > 3) {
+      } else if (trainers.length > 3) {
         console.log(
           `%cBRACKET FIGHT`,
           `color: #FFCB05; font-weight: bold; font-size: 4rem;`
@@ -772,7 +772,7 @@ class Battle {
 
         this.randomPlayer();
         this.bracketFight();
-      }
+      } else break;
     }
   }
 
@@ -1037,7 +1037,7 @@ class Battle {
       // break;
       if (trainers.length == 0 && this.winnersBracket.length == 1) {
         console.log(
-          `%cTOURNAMENT WINNER: ${this.winnersBracket[0].name}`,
+          `%cTOURNAMENT WINNER: ${this.winnersBracket[0].trainer}`,
           `color: #3466AF; font-weight: bold; font-size: 2rem;`
         );
 
@@ -1059,6 +1059,7 @@ class Battle {
       ) {
         trainers.push(...this.winnersBracket);
         this.winnersBracket = [];
+        this.randomPlayer();
       } else if (trainers.length > 1) this.randomPlayer();
       else break;
     }
@@ -1306,6 +1307,9 @@ document.addEventListener("keydown", function (event) {
 });
 
 const pokemonGame = new PokemonGame();
+
+// noOfTrainers = 3;
+// noOfPokemons = 2;
 // trainers = [
 //   new Trainer("Trainer 1", [
 //     new NormalPokemon("Normal 1"),
